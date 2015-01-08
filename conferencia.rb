@@ -14,16 +14,10 @@ end
 
 # sig Pessoa {}
 class Pessoa
-  def valid?
-    true
-  end
 end
 
 # some sig Comissao in Pessoa {}
 class Comissao < Pessoa
-  def valid?
-    true
-  end
 end
 
 # sig Artigo
