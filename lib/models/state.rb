@@ -12,8 +12,8 @@ class State
     true
   end
 
-  def initialize(params)
-    if params.key? :anterior then
+  def initialize(params=nil)
+    if not params.nil? and params.key? :anterior then
       params[:anterior].submetidos.dup
     else
       submetidos = []
