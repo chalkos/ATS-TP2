@@ -1,4 +1,4 @@
 FactoryGirl.define do
-  factory :list do
+  factory :nota do
   end
 end
