@@ -5,5 +5,7 @@ Projecto que consiste na implementação de um modelo Alloy em Ruby com teste un
 
 
 [Bruno Ferreira](http://www.github.com/chalkos)
+
 [Duarte Duarte](http://www.github.com/duknust)
+
 [Miguel Pinto](http://www.github.com/miguelpinto98)
