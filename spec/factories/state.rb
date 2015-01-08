@@ -1,4 +1,4 @@
 FactoryGirl.define do
-  factory :node do
+  factory :state do
   end
 end
