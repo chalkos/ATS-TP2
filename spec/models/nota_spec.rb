@@ -19,9 +19,11 @@ describe Nota do
   end
 
   it 'is valid between 0 and 20' do
-    nota = build(:nota)
-    expect(nota.valor).to be_between(0, 20).inclusive
-    expect(nota).to be_valid
+    (0..20).each do |e|
+      nota = build(:nota, valor: e)
+      expect(nota.valor).to be_between(0, 20).inclusive
+      expect(nota).to be_valid
+    end
   end
 
   it '20 is maximum' do
