@@ -2,7 +2,7 @@
 # sig Nota {}
 class Nota
   def initialize(num)
-    raise "not_an_integer" unless num.instance_of? Integer
+    raise "not_an_integer, got #{num}" unless num.is_a? Integer
     @value = num
   end
 
