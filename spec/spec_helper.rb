@@ -1,5 +1,8 @@
 require 'rubygems'
 require 'factory_girl'
+require 'simplecov'
+
+SimpleCov.start
 
 require_relative '../lib/models/artigo'
 require_relative '../lib/models/comissao'
