@@ -1,16 +1,18 @@
 # open util/ordering[Nota]
 # sig Nota {}
 class Nota
+  attr_accessor :valor 
+
   def initialize(num)
-    raise "not_an_integer, got #{num}" unless num.is_a? Integer
-    @value = num
+    raise "not_an_integer" unless num.is_a? Integer
+    @valor = num
   end
 
   def valid?
-    @value >= 0 and @value <= 20
+    @valor >= 0 and @valor <= 20
   end
 
   def maxima?
-    @value.eql? 20
+    @valor.eql? 20
   end
 end
