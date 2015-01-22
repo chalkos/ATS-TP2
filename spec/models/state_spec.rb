@@ -13,8 +13,8 @@ describe State do
   describe '#valid?' do
     context 'quando todos os artigos são válidos' do
       it 'é válido' do
-        estado = @init.submeter(build(:artigo_populado))
-        Random.rand(51).times do
+        estado = @init
+        randomNumber.times do
           estado = estado.submeter(build(:artigo_populado))
         end
 
@@ -172,8 +172,8 @@ describe State do
           estado.rever artigo, membro_comissao, nota
         }.not_to raise_error
         expect(artigo.notas).to include({membro_comissao => nota})
+        expect(estado).to be_valid
       end
-      # artigo.avaliar! pessoa, nota
     end
   end
 end

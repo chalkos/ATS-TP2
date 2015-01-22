@@ -11,12 +11,14 @@ FactoryGirl.define do
 
     factory :artigo_populado do
       after(:build) do |instance|
-        (1+Random.rand(51)).times do
+        randomNumber.times do
           if Random.rand(2) == 1 then
             instance.autores << build(:pessoa)
           else
             instance.autores << build(:comissao)
           end
+        end
+        randomNumber.times do
           instance.notas[build(:comissao)] = build(:nota_ate_19)
         end
       end
@@ -24,8 +26,8 @@ FactoryGirl.define do
 
     trait :com_autores do
       after(:build) do |instance|
-        (1+Random.rand(51)).times do
-          if Random.rand(2) == 1 then
+        randomNumber.times do
+          if randomBoolean then
             instance.autores << build(:pessoa)
           else
             instance.autores << build(:comissao)
@@ -36,7 +38,7 @@ FactoryGirl.define do
 
     trait :com_notas_ate_19 do
       after(:build) do |instance|
-        (1+Random.rand(51)).times do
+        randomNumber.times do
           instance.notas[build(:comissao)] = build(:nota_ate_19)
         end
       end

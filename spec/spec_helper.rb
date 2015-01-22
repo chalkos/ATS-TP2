@@ -2,6 +2,14 @@ require 'rubygems'
 require 'factory_girl'
 require 'simplecov'
 
+def randomNumber
+  1 + Random.rand(50)
+end
+
+def randomBoolean
+  Random.rand(2) == 1
+end
+
 SimpleCov.start
 
 require_relative '../lib/models/artigo'
