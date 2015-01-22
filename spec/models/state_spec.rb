@@ -81,7 +81,7 @@ describe State do
     context 'caso o artigo ainda não tenha sido avaliado' do
       it 'manda um erro' do
         artigo = build(:artigo, :com_autores)
-        
+
         expect(artigo).to be_valid
         expect(artigo.notas).to be_empty
         expect{ @init = @init.submeter artigo }.not_to raise_error
@@ -176,13 +176,4 @@ describe State do
       # artigo.avaliar! pessoa, nota
     end
   end
-
-
-
-
-  describe 'sequências de estados' do
-
-  end
-
-
 end
