@@ -16,6 +16,9 @@ class Artigo
   end
 
   def valid?
+    # tem de ter autores
+    return false if autores.empty?
+
     # autores são pessoas
     autores.each do |e|
       return false unless e.is_a? Pessoa

@@ -5,7 +5,7 @@ class State
 
   def valid?
     # inválido se contiver algum artigo inválido
-    submetidos.each do |a|
+    @submetidos.each do |a|
       return false unless a.valid?
     end
 
@@ -14,15 +14,15 @@ class State
 
   def initialize(params=nil)
     if not params.nil? and params.key? :anterior then
-      params[:anterior].submetidos.dup
+      @submetidos = params[:anterior].submetidos.dup
     else
-      submetidos = []
+      @submetidos = []
     end
   end
 
   # pred aceitar [a : Artigo, s,s' : State]
-  def submeter(artigo, stateAnterior)
-    atual = new State(anterior: stateAnterior)
+  def submeter(artigo)
+    atual = State.new(anterior: self)
 
     #precondicao
     raise "artigo_ja_submetido" if atual.submetidos.include? artigo
@@ -34,8 +34,8 @@ class State
   end
 
   # pred aceitar [a : Artigo, s,s' : State]
-  def aceitar(artigo, stateAnterior)
-    atual = new State(anterior: stateAnterior)
+  def aceitar(artigo)
+    atual = State.new(anterior: self)
 
     #precondicao
     raise "artigo_ja_aceite" if artigo.aceite?
@@ -49,8 +49,8 @@ class State
   end
 
   # pred rever [a : Artigo, p : Pessoa, n : Nota, s,s' : State]
-  def rever(artigo, pessoa, nota, stateAnterior)
-    atual = new State(anterior: stateAnterior)
+  def rever(artigo, pessoa, nota)
+    atual = State.new(anterior: self)
 
     #precondicao
     raise "artigo_nao_submetido" unless atual.submetidos.include? artigo
