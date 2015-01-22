@@ -1,168 +1,201 @@
 require 'spec_helper'
 
 describe Artigo do
-  it "instatiates one artigo" do
+  before(:all) do
+    @nota = build(:nota_ate_19)
+    @nota_maxima = build(:nota_maxima)
+
+    @pessoa = build(:pessoa)
+    @pessoa_da_comissao = build(:comissao)
+  end
+
+  it 'inicializa artigo' do
     artigo = build(:artigo)
-    expect(artigo.class.name).to eq("Artigo")
+    expect(artigo.class.name).to eq('Artigo')
   end
 
-  it "Pessoa nao e da comissao" do
-    p = build(:pessoa)
-    nota = build(:nota)
-    artigo = build(:artigo)
 
-    expect {
-      artigo.avaliar!(p,nota)
-    }.to raise_error "pessoa_nao_e_da_comissao"
+
+
+  describe '#avaliar!' do
+    context 'ao validar o avaliador' do
+      it 'dá erro quando o avaliador não é membro da comissão' do
+        expect {
+          build(:artigo).avaliar!(@pessoa,@nota)
+        }.to raise_error 'pessoa_nao_e_da_comissao'
+      end
+    end
+
+    context 'ao validar a nota' do
+      it 'dá erro quando se avalia com algo que não é uma nota' do
+        expect {
+          build(:artigo).avaliar!(@pessoa_da_comissao,5)
+        }.to raise_error 'nao_e_nota'
+      end
+    end
+
+    context 'ao validar se a pessoa já avaliou o artigo' do
+      it 'dá erro quando a mesma pessoa avalia pela segunda vez o artigo' do
+        artigo = build(:artigo)
+
+        expect{
+          artigo.avaliar!(@pessoa_da_comissao,@nota)
+        }.not_to raise_error
+
+        expect{
+          artigo.avaliar!(@pessoa_da_comissao,@nota_maxima)
+        }.to raise_error 'pessoa_ja_avaliou_artigo'
+      end
+    end
+
+    context 'ao validar se o autor está a avaliar o seu próprio artigo' do
+      it 'dá erro se o avaliador for o autor do artigo' do
+        artigo = build(:artigo, autores: [@pessoa_da_comissao])
+        expect {
+          artigo.avaliar!(@pessoa_da_comissao,@nota)
+        }.to raise_error('pessoa_e_autor')
+      end
+    end
+
+    context 'ao dar uma nota' do
+      it 'se a nota dada não for máxima o artigo não fica aceite' do
+        artigo = build(:artigo, autores: [@pessoa])
+        artigo.avaliar!(@pessoa_da_comissao,@nota)
+        expect(artigo).not_to be_aceite
+      end
+
+      it 'se a nota dada for máxima o artigo fica aceite' do
+        artigo = build(:artigo, autores: [@pessoa])
+        artigo.avaliar!(@pessoa_da_comissao, @nota_maxima)
+        expect(artigo).to be_aceite
+      end
+    end
   end
 
-  it "Nao e nota" do
-    p = build(:pessoa)
-    c = build(:comissao)
-    n = build(:nota)
-    a = build(:artigo)
 
-    expect {
-      a.avaliar!(c,20)
-    }.to raise_error "nao_e_nota"
+
+
+  describe '#aceitar!' do
+    it 'apenas aceita o artigo se este tiver sido avaliado' do
+      artigo = build( :artigo\
+                    , autores: [@pessoa])
+      expect(artigo).not_to be_aceite
+
+      artigo.aceitar!
+      expect(artigo).not_to be_aceite
+
+      artigo.avaliar! @pessoa_da_comissao, @nota
+      artigo.aceitar!
+      expect(artigo).to be_aceite
+    end
   end
 
-  it "Pessoa ja avaliou artigo" do
-    c = build(:comissao)
-    n1 = build(:nota)
-    n2 = build(:nota)
-    a = build(:artigo)
 
-    expect {
-      a.avaliar!(c,n1)
-      a.avaliar!(c,n2)
-    }.to raise_error "pessoa_ja_avaliou_artigo"
+
+
+  describe '#avaliadoPor?' do
+    it 'informa correctamente se foi ou não avaliado por determinado membro da comissão' do
+      artigo = build( :artigo\
+                    , autores: [@pessoa])
+
+      expect(artigo.avaliadoPor? @pessoa_da_comissao).to be false
+
+      artigo.avaliar! @pessoa_da_comissao, @nota
+      expect(artigo.avaliadoPor? @pessoa_da_comissao).to be true
+    end
   end
 
-  it "Pessoa e autor" do
-    p = build(:comissao)
 
-    a = build(:artigo, autores: [p])
-    n = build(:nota)
 
-    expect {
-      a.avaliar!(p,n)
-    }.to raise_error("pessoa_e_autor")
+
+  describe '#has_notas?' do
+    context 'quando não tem notas' do
+      it 'reporta não ter notas' do
+        artigo = build(:artigo, autores: [@pessoa])
+        expect(artigo).not_to have_notas
+      end
+    end
+
+    context 'quando tem notas' do
+      it 'reporta ter notas' do
+        artigo = build(:artigo, autores: [@pessoa])
+        artigo.avaliar!(@pessoa_da_comissao,@nota)
+        expect(artigo).to have_notas
+      end
+    end
   end
 
-  it "Se nao tem nota maxima nao e aceite" do
-    p = build(:pessoa)
-    a = build(:artigo, autores: [p])
 
-    c = build(:comissao)
-    n = build(:nota, valor: 10)
-    a.avaliar!(c,n)
 
-    expect(a).not_to be_aceite
-  end
 
-  it "Se tem nota maxima nao e aceite" do
-    p = build(:pessoa)
-    a = build(:artigo, autores: [p])
+  describe '#valid?' do
+    context 'quanto aos autores' do
+      it 'é inválido se existirem autores que não sejam pessoas' do
+        artigo = build(:artigo, autores: [@pessoa, @pessoa_da_comissao, @nota])
+        expect(artigo).not_to be_valid
+      end
+    end
 
-    c = build(:comissao)
-    n = build(:nota, valor: 20)
-    a.avaliar!(c,n)
+    context 'quanto às notas' do
+      it 'é inválido se existirem notas que não tenham sido dadas por membros da comissão' do
+        artigo = build( :artigo\
+                      , autores: [@pessoa_da_comissao]\
+                      , notas: {@pessoa => @nota})
 
-    expect(a).to be_aceite
-  end
+        expect(artigo).not_to be_valid
+      end
 
-  it "Se nao tem nota diz que nao tem nota" do
-    p = build(:pessoa)
-    a = build(:artigo, autores: [p])
+      it 'é inválido se o autor avaliar o seu próprio artigo' do
+        artigo = build( :artigo\
+                      , autores: [@pessoa_da_comissao]\
+                      , notas: {@pessoa_da_comissao => @nota})
 
-    expect(a.temNotas?).to be false
-  end
+        expect(artigo).not_to be_valid
+      end
 
-  it "Se tem nota diz que tem nota" do
-    p = build(:pessoa)
-    a = build(:artigo, autores: [p])
+      it 'é inválido se tiver uma nota máxima e não estiver aceite' do
+        artigo = build( :artigo\
+                      , autores: [@pessoa]\
+                      , notas: {@pessoa_da_comissao => @nota_maxima})
 
-    c = build(:comissao)
-    n = build(:nota, valor: 20)
-    a.avaliar!(c,n)
+        expect(artigo).not_to be_valid
+      end
 
-    expect(a.temNotas?).to be true
-  end
+      it 'é inválido se estiver aceite e não tiver nenhuma nota' do
+        artigo = build( :artigo\
+                      , aceite: true\
+                      , autores: [@pessoa])
+        expect(artigo).not_to be_valid
+      end
+    end
 
-  it "Autores não sao pessoas" do
-    p = build(:pessoa)
-    n = build(:nota)
-    a = build(:artigo, autores: [p,n])
+    context 'é válido' do
+      it 'tendo nota menor que a máxima e não estando aceite' do
+        artigo = build( :artigo\
+                      , autores: [@pessoa])
 
-    expect(a.valid?).to be false
-  end
+        artigo.avaliar! @pessoa_da_comissao, @nota
+        expect(artigo).to be_valid
+      end
 
-  it "Revisoes so feitas pela comissao" do
-    p = build(:pessoa)
-    a = build(:artigo, autores: [p])
+      it 'tendo nota menor que a máxima, sendo depois aceite' do
+        artigo = build( :artigo\
+                      , autores: [@pessoa])
 
-    notas = {}
-    notas[p] = build(:nota)
-    #c1 = build(:comissao)
-    #n1 = build(:nota)
-    #notas[c1] = n1
+        artigo.avaliar! @pessoa_da_comissao, @nota
+        artigo.aceitar!
+        expect(artigo).to be_valid
+      end
 
-    a.notas = notas
-    expect(a.valid?).to be false
-  end
+      it 'tendo nota máxima e estando aceite' do
+        artigo = build( :artigo\
+                      , autores: [@pessoa])
 
-  it "Revisoes nao podem ser feitas pelos proprios autores" do
-    p = build(:comissao)
-    a = build(:artigo, autores: [p])
-
-    notas = {}
-    notas[p] = build(:nota)
-
-    a.notas = notas
-
-    expect(a.valid?).to be false
-  end
-
-  it "Artigos sem nota maxima nao sao aceites automaticamente" do
-    p = build(:pessoa)
-    a = build(:artigo, autores: [p])
-
-    notas = {}
-    c = build(:comissao)
-    n = build(:nota, valor: 20)
-    notas[c] = n
-
-    a.notas = notas
-    expect(a.valid?).to be false
-  end
-
-  #Verficar este
-  it "Artigos aceites tem pelo menos uma nota" do
-    p = build(:pessoa)
-    a = build(:artigo, autores: [p])
-
-    expect(a.valid?).to be true
-  end
-
-  it "Artigos e valido" do
-    p = build(:pessoa)
-    a = build(:artigo, autores: [p])
-
-    notas = {}
-    c1 = build(:comissao)
-    n1 = build(:nota, valor: 10)
-
-    c2 = build(:comissao)
-    n2 = build(:nota, valor: 15)
-
-    notas[c1] = n1
-    notas[c2] = n2
-
-    a.notas = notas
-    a.aceitar!
-
-    expect(a.valid?).to be true
+        expect(artigo).to be_valid
+        artigo.avaliar! @pessoa_da_comissao, @nota_maxima
+        expect(artigo).to be_valid
+      end
+    end
   end
 end
 

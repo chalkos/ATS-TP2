@@ -33,17 +33,17 @@ class Artigo
     end
 
     # Todos os artigos aceites tem que ter pelo menos uma revisão
-    return false if aceite? and not temNotas?
+    return false if aceite? and not has_notas?
 
     true
   end
 
-  def temNotas?
+  def has_notas?
     not notas.empty?
   end
 
   def aceitar!
-    @aceite = true
+    @aceite = true if has_notas?
   end
 
   def avaliadoPor?(pessoa)
