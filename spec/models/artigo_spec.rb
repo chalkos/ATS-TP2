@@ -77,8 +77,8 @@ describe Artigo do
 
   describe '#aceitar!' do
     it 'apenas aceita o artigo se este tiver sido avaliado' do
-      artigo = build( :artigo\
-                    , autores: [@pessoa])
+      artigo = build( :artigo \
+                    , :com_autores)
       expect(artigo).not_to be_aceite
 
       artigo.aceitar!
@@ -95,8 +95,8 @@ describe Artigo do
 
   describe '#avaliadoPor?' do
     it 'informa correctamente se foi ou não avaliado por determinado membro da comissão' do
-      artigo = build( :artigo\
-                    , autores: [@pessoa])
+      artigo = build( :artigo \
+                    , :com_autores)
 
       expect(artigo.avaliadoPor? @pessoa_da_comissao).to be false
 
@@ -111,14 +111,14 @@ describe Artigo do
   describe '#has_notas?' do
     context 'quando não tem notas' do
       it 'reporta não ter notas' do
-        artigo = build(:artigo, autores: [@pessoa])
+        artigo = build(:artigo, :com_autores)
         expect(artigo).not_to have_notas
       end
     end
 
     context 'quando tem notas' do
       it 'reporta ter notas' do
-        artigo = build(:artigo, autores: [@pessoa])
+        artigo = build(:artigo, :com_autores)
         artigo.avaliar!(@pessoa_da_comissao,@nota)
         expect(artigo).to have_notas
       end
@@ -130,8 +130,15 @@ describe Artigo do
 
   describe '#valid?' do
     context 'quanto aos autores' do
+      it 'é inválido se não tiver autores' do
+        artigo = build(:artigo)
+        expect(artigo).not_to be_valid
+      end
+
       it 'é inválido se existirem autores que não sejam pessoas' do
-        artigo = build(:artigo, autores: [@pessoa, @pessoa_da_comissao, @nota])
+        artigo = build(:artigo, :com_autores)
+        artigo.autores << @nota
+        artigo.autores.shuffle!
         expect(artigo).not_to be_valid
       end
     end
@@ -172,7 +179,8 @@ describe Artigo do
     context 'é válido' do
       it 'tendo nota menor que a máxima e não estando aceite' do
         artigo = build( :artigo\
-                      , autores: [@pessoa])
+                      , :com_autores\
+                      , :com_notas_ate_19)
 
         artigo.avaliar! @pessoa_da_comissao, @nota
         expect(artigo).to be_valid
@@ -180,7 +188,8 @@ describe Artigo do
 
       it 'tendo nota menor que a máxima, sendo depois aceite' do
         artigo = build( :artigo\
-                      , autores: [@pessoa])
+                      , :com_autores\
+                      , :com_notas_ate_19)
 
         artigo.avaliar! @pessoa_da_comissao, @nota
         artigo.aceitar!
