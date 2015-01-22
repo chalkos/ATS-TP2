@@ -27,7 +27,7 @@ describe Nota do
   end
 
   it '20 is maximum' do
-    nota = build(:nota, valor: 20)
+    nota = build(:nota_maxima)
     expect(nota.valor).to eq 20
     expect(nota).to be_maxima
   end

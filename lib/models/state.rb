@@ -39,7 +39,7 @@ class State
 
     #precondicao
     raise "artigo_ja_aceite" if artigo.aceite?
-    raise "artigo_nao_avaliado" unless artigo.temNotas?
+    raise "artigo_nao_avaliado" unless artigo.has_notas?
     raise "artigo_nao_submetido" unless atual.submetidos.include? artigo
 
     #liveness
